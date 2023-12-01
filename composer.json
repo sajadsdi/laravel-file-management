@@ -1,0 +1,22 @@
+{
+    "name": "sajadsdi/laravel-file-management",
+    "description": "Easy File Management for Laravel framework",
+    "type": "laravel-package",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Sajadsdi\\LaravelFileManagement\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "SajaD SaeeDi",
+            "email": "thunder11like@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "laravel/framework": "^10.0",
+        "intervention/image": "^2.7"
+    }
+}
