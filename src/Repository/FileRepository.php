@@ -2,48 +2,50 @@
 
 namespace Sajadsdi\LaravelFileManagement\Repository;
 
-use Illuminate\Database\Eloquent\Collection;
 use Sajadsdi\LaravelFileManagement\Contracts\FileRepositoryInterface;
 use Sajadsdi\LaravelFileManagement\Model\File;
+use Sajadsdi\LaravelRepository\Concerns\Crud\Crud;
+use Sajadsdi\LaravelRepository\Repository;
 
-class FileRepository implements FileRepositoryInterface
+class FileRepository extends Repository implements FileRepositoryInterface
 {
-    private File $file;
+    use Crud;
 
     /**
-     * @param File $file
+     * @return string
      */
-    public function __construct(File $file)
+    public function getModelName(): string
     {
-        $this->file = $file;
-    }
-
-
-    /**
-     * @param array $data
-     * @return File
-     */
-    public function createFile(array $data): File
-    {
-        return $this->file->create($data);
+        return File::class;
     }
 
     /**
-     * @param string $fileId
-     * @param array $data
-     * @return Collection
+     * @return array
      */
-    public function updateFile(string $fileId, array $data): Collection
+    public function getSearchable(): array
     {
-        return $this->file->find($fileId)->update($data);
+        return ['type', "title", "name", "ext"];
     }
 
     /**
-     * @param string $fileId
-     * @return void
+     * @return array
      */
-    public function deleteFile(string $fileId): void
+    public function getFilterable(): array
     {
-        $this->file->find($fileId)->delete();
+        return ["type", "ext", "path", "disk", "size"];
     }
+
+    /**
+     * @return array
+     */
+    public function getSortable(): array
+    {
+        return ["title", "name", "type", "ext", "path", "disk", "size", "created_at", "updated_at"];
+    }
+
+    public function create(array $data): array
+    {
+        return $this->query()->create($data)->makeVisible(["path", "disk"])?->toArray() ?? [];
+    }
+
 }

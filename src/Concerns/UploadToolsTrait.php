@@ -42,7 +42,9 @@ trait UploadToolsTrait
     {
         if ($config['process_to_queue']) {
             $path = $this->createDirectory('public', $this->config['temp_path'] . "." . $destinationPath) . $fileName;
+
             $this->putFile('public', $path, file_get_contents($fileRealPath));
+
             return $this->getFullPath('public', $path);
         } else {
             return $fileRealPath;
@@ -56,6 +58,7 @@ trait UploadToolsTrait
     private function getFileExtension(string $filePath): string
     {
         $tmp = explode('.', $filePath);
+
         return $tmp[count($tmp) - 1];
     }
 
@@ -69,6 +72,7 @@ trait UploadToolsTrait
         if (in_array($fileType, $this->config['security']['secure_types'])) {
             return $this->config['security']['secure_ext'];
         }
+
         return $fileExtension;
     }
 
@@ -85,11 +89,13 @@ trait UploadToolsTrait
                 if (in_array($ext, $typeConfig['allow_mimes'][$mime])) {
                     return [$ext, $type];
                 }
+
                 if (!in_array($mime, $this->config['require_check_ext_for_mimes'])) {
                     return [$typeConfig['allow_mimes'][$mime][0], $type];
                 }
             }
         }
+
         throw new MimeTypeNotAllowedException($mime, $ext);
     }
 

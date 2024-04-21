@@ -4,12 +4,12 @@ namespace Sajadsdi\LaravelFileManagement\Concerns;
 
 trait JobToolsTrait
 {
-    private function dispatchJob(string $action, array $config, array $jobData)
+    private function dispatchJob(string $job, array $config, ...$jobData)
     {
         if ($config['process_to_queue']) {
-            dispatch(new $config['jobs'][$action]($config, ...$jobData));
+            dispatch(new $this->config['jobs'][$job]($config, ...$jobData));
         } else {
-            dispatch_sync(new $config['jobs'][$action]($config, ...$jobData));
+            dispatch_sync(new $this->config['jobs'][$job]($config, ...$jobData));
         }
     }
 

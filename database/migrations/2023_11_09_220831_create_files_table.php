@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->integer('type')->unsigned()->index();
-            $table->string('title',300)->index();
-            $table->string('name',25)->index();
+            $table->string('type',30)->index();
+            $table->string('title',350)->index();
+            $table->string('name',50)->index();
             $table->string('ext',15)->index();
-            $table->string('path',200);
-            $table->string('disk',30)->index();
+            $table->string('path',250)->index();
+            $table->string('disk',50)->index();
+            $table->bigInteger('size')->unsigned()->index();
+            $table->longText('details')->default('{}');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -12,9 +12,12 @@ class File extends Model
     use HasUuids, SoftDeletes;
 
     protected $table    = "files";
-    protected $fillable = ["type", "title", "name", "ext", "path", "disk"];
+    protected $fillable = ["type", "title", "name", "ext", "path", "disk", "size", "details"];
     protected $hidden   = ["path", "disk", "updated_at", "deleted_at"];
     protected $appends  = ["url"];
+    protected $casts    = [
+        'details' => 'object'
+    ];
 
 
     public function getUrlAttribute(): string

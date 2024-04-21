@@ -9,30 +9,19 @@ use Psr\Http\Message\StreamInterface;
 
 trait StorageToolsTrait
 {
-    private string $DS = '/';
-
     /**
      * @param array $config
      * @param string|null $leftPath
      * @param string|null $rightPath
      * @return string
      */
-    private function generatePath(array $config, ?string $leftPath = null, ?string $rightPath = null): string
-    {
-        $path = $this->createPath($config, $leftPath, $rightPath);
-        return $this->createDirectory($config['disk'], $path);
-    }
-
-    /**
-     * @param array $config
-     * @param string|null $leftPath
-     * @param string|null $rightPath
-     * @return string
-     */
-    private function createPath(array $config, ?string $leftPath = null, ?string $rightPath = null): string
+    public function generatePath(array $config, ?string $leftPath = null, ?string $rightPath = null): string
     {
         $date = $config['create_date_paths'] ? date("Y.m" . ($config['date_paths_with_day'] ? ".d" : "")) : "";
-        return ($leftPath ? $leftPath . "." : "") . $config['start_path'] . ($date ? "." . $date : "") . ($rightPath ? "." . $rightPath : "");
+
+        $path = ($leftPath ? $leftPath . "." : "") . $config['start_path'] . ($date ? "." . $date : "") . ($rightPath ? "." . $rightPath : "");
+
+        return $this->createDirectory($config['disk'], $path);
     }
 
     /**
@@ -42,16 +31,13 @@ trait StorageToolsTrait
      */
     public function createDirectory(string $disk, string $directories): string
     {
-        $aDirectories = explode('.', str_replace(['/', '\\'], ".", $directories));
-        $path         = '';
-        foreach ($aDirectories as $directory) {
-            $path .= $directory . $this->DS;
-        }
-        $path = preg_replace("/\\" . $this->DS . '+/', $this->DS, $path);
+        $path = $this->normalizePath($directories);
+
         if (!$this->existDirectory($disk, $path)) {
             Storage::disk($disk)->makeDirectory($path);
         }
-        return $path;
+
+        return $path . '/';
     }
 
     /**
@@ -61,7 +47,8 @@ trait StorageToolsTrait
      */
     public function removeDirectory(string $disk, string $directories): void
     {
-        $path = str_replace('.', '/', $directories);
+        $path = $this->normalizePath($directories);
+
         if ($this->existDirectory($disk, $path)) {
             Storage::disk($disk)->deleteDirectory($path);
         }
@@ -79,7 +66,7 @@ trait StorageToolsTrait
 
     public function normalizePath(string $path): string
     {
-        return str_replace(['\\','/'],DIRECTORY_SEPARATOR,$path);
+        return preg_replace('/\/{2,}/', '/', str_replace(['.', '\\'], '/', $path));
     }
 
     /**
@@ -89,9 +76,10 @@ trait StorageToolsTrait
      */
     public function existDirectory(string $disk, string $path): bool
     {
-        $aPath = explode($this->DS, $path);
+        $aPath = explode('/', $path);
         $count = count($aPath);
-        $path  = str_replace($this->DS . $aPath[$count - 1], '', $path);
+        $path  = str_replace('/' . $aPath[$count - 1], '', $path);
+
         return in_array($aPath[$count - 1], Storage::disk($disk)->directories($path));
     }
 

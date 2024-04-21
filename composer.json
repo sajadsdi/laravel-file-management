@@ -1,6 +1,6 @@
 {
     "name": "sajadsdi/laravel-file-management",
-    "description": "Easy File Management for Laravel framework",
+    "description": "Advanced File Management For Laravel Framework",
     "type": "laravel-package",
     "license": "MIT",
     "autoload": {
@@ -16,7 +16,15 @@
     ],
     "require": {
         "php": "^8.1",
-        "laravel/framework": "^10.0",
-        "intervention/image": "^2.7"
+        "illuminate/console": "^9.0|^10.0|^11.0",
+        "illuminate/support": "^9.0|^10.0|^11.0",
+        "sajadsdi/laravel-repository": "^1.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sajadsdi\\LaravelFileManagement\\Providers\\FileManagementServiceProvider"
+            ]
+        }
     }
 }

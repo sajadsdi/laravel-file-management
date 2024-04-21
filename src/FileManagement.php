@@ -32,11 +32,15 @@ class FileManagement
      */
     public function upload(UploadedFile $file, ?string $leftPath = null, ?string $rightPath = null, ?string $customFileName = null): array
     {
+        //generate unique file name
         $fileName = $this->generateFileName($file, $customFileName);
+
         //get file info and validate file mime and extension
         [$fileExt, $fileType] = $this->getFileInfo($file->getMimeType(), strtolower($file->getClientOriginalExtension()));
+
         //validate file size
-        $this->validateFileSize($file->getSize(),$fileType);
+        $fileSize = $file->getSize();
+        $this->validateFileSize($fileSize, $fileType);
 
         $secureExt = $this->getSecureFileExt($fileType, $fileExt);
         $config    = $this->config['types'][$fileType];
@@ -44,18 +48,25 @@ class FileManagement
         $path      = $this->generatePath($config, $leftPath, $rightPath);
         $tempPath  = $this->getUploadTempPath($file->getRealPath(), $path, $fileName . '.' . $secureExt, $config);
 
-        $insertedFile = $this->fileRepository->createFile([
-            'type'  => $config['type']->value,
+        $insertedFile = $this->fileRepository->create([
+            'type'  => $fileType,
             'title' => $fileTitle,
             'name'  => $fileName,
             'ext'   => $fileExt,
             'path'  => $path . $fileName . '_fm.' . $secureExt,
-            'disk'  => $config['disk']
+            'disk'  => $config['disk'],
+            'size'  => $fileSize
         ]);
 
-        $this->dispatchJob('upload', $config, [$tempPath, $insertedFile]);
+        if ($insertedFile) {
+            $this->dispatchJob('upload', $config, $tempPath, $insertedFile);
 
-        return $insertedFile?->toArray() ?? [];
+            unset($insertedFile['disk'], $insertedFile['path']);
+
+            return $insertedFile;
+        }
+
+        return [];
     }
 
 

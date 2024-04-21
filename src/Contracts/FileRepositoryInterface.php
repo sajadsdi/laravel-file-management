@@ -2,14 +2,17 @@
 
 namespace Sajadsdi\LaravelFileManagement\Contracts;
 
-use Illuminate\Database\Eloquent\Collection;
-use Sajadsdi\LaravelFileManagement\Model\File;
 
 interface FileRepositoryInterface
 {
-    public function createFile(array $data): File;
+    public function read(string|int $id): array;
 
-    public function updateFile(string $fileId, array $data): Collection;
+    public function index(string $search = null, string $filter = null, string $sort = null, int $perPage = 15): array;
 
-    public function deleteFile(string $fileId): void;
+    public function create(array $data): array;
+
+    public function update(string|int $id, array $data): array;
+
+    public function delete(string|int $id): bool;
+
 }
