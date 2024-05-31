@@ -17,7 +17,7 @@ class DeleteUploadTempJob implements ShouldQueue
      */
     public function __construct(public array $config, public string $tempPath)
     {
-        $this->onQueue($config['queue']);
+        $this->onQueue($this->config['queue']);
     }
 
     /**

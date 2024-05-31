@@ -20,7 +20,7 @@ class UploadJob implements ShouldQueue
      */
     public function __construct(public array $config, public string $tempPath, public array $file)
     {
-        $this->onQueue($config['queue']);
+        $this->onQueue($this->config['queue']);
     }
 
     /**
