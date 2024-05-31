@@ -7,8 +7,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Sajadsdi\LaravelFileManagement\Concerns\StorageToolsTrait;
-use Sajadsdi\LaravelFileManagement\Events\AfterUpload;
-use Sajadsdi\LaravelFileManagement\Events\BeforeUpload;
+use Sajadsdi\LaravelFileManagement\Events\Upload\AfterUpload;
+use Sajadsdi\LaravelFileManagement\Events\Upload\BeforeUpload;
+use Sajadsdi\LaravelFileManagement\Jobs\VerifyFile;
 
 class UploadJob implements ShouldQueue
 {
@@ -35,6 +36,8 @@ class UploadJob implements ShouldQueue
         AfterUpload::dispatch($this->config, $this->tempPath, $this->file);
 
         DeleteUploadTempJob::dispatchSync($this->config, $this->tempPath);
+
+        VerifyFile::dispatchSync($this->file['id'], $this->config['queue']);
     }
 
 }

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('files', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('type',30)->index();
+            $table->tinyInteger('status')->unsigned()->default(File::STATUS_INPROGRESS);
             $table->string('title',350)->index();
             $table->string('name',50)->index();
             $table->string('ext',15)->index();
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->string('disk',50)->index();
             $table->bigInteger('size')->unsigned()->index();
             $table->longText('details')->default('{}');
+            $table->timestamp('trashed_at')->nullable()->default(null);
             $table->softDeletes();
             $table->timestamps();
         });
