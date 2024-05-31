@@ -106,4 +106,14 @@ trait StorageToolsTrait
             Storage::disk($disk)->delete($filePath);
         }
     }
+    /**
+     * @param string $disk
+     * @param string $path
+     * 
+     * @return mixed
+     */
+    public function getFile(string $disk, string $path): mixed
+    {
+        return Storage::disk($disk)->get($path);
+    }
 }

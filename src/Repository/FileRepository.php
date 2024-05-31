@@ -48,4 +48,20 @@ class FileRepository extends Repository implements FileRepositoryInterface
         return $this->query()->create($data)->makeVisible(["path", "disk"])?->toArray() ?? [];
     }
 
+    public function getById(string $id)
+    {
+        return $this->find($id);
+    }
+
+    /**
+     * Update a file by id.
+     *
+     * @param string|int $id
+     * @param array $data
+     * @return array
+     */
+    public function update(int|string $id, array $data): array
+    {
+        return $this->find($id)?->update($data) ? $this->getById($id)->makeVisible(['disk', 'path'])->toArray() ?? [] : [];
+    }
 }

@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Sajadsdi\LaravelFileManagement\Contracts\FileRepositoryInterface;
 use Sajadsdi\LaravelFileManagement\FileManagement;
-use Sajadsdi\LaravelFileManagement\Http\Requests\UploadRequest;
 
 class FileController extends Controller
 {
@@ -26,15 +25,55 @@ class FileController extends Controller
     /**
      * Update the specified resource.
      */
-    public function update(int $id,$request)
+    public function update(string $id, Request $request)
     {
 
     }
 
     /**
+     * Move the specified resource to trash.
+     */
+    public function trash(Request $request ,FileManagement $fileManagement)
+    {
+        $error  = "";
+
+        try {
+            $fileManagement->trash($request->id);
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+        }
+
+        if ($error) {
+            return response(['data' => [], 'message' => $error], 400);
+        }
+
+        return response(['data' => [], 'message' => 'Trashing file(s) in progress!'], 200);
+    }
+
+    /**
+     * Move the specified resource from trash to old path.
+     */
+    public function restoreTrash(Request $request ,FileManagement $fileManagement)
+    {
+        $error  = "";
+
+        try {
+            $fileManagement->restoreTrash($request->id);
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+        }
+
+        if ($error) {
+            return response(['data' => [], 'message' => $error], 400);
+        }
+
+        return response(['data' => [], 'message' => 'restoring trashed file(s) in progress!'], 200);
+    }
+
+    /**
      * Remove the specified resource.
      */
-    public function destroy($id)
+    public function delete(string $id)
     {
 
     }

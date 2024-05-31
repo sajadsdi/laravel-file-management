@@ -15,4 +15,6 @@ interface FileRepositoryInterface
 
     public function delete(string|int $id): bool;
 
+    public function getById(string $id);
+
 }

@@ -126,15 +126,18 @@ return [
         'upload' => \Sajadsdi\LaravelFileManagement\Jobs\Upload\UploadJob::class,
         'update' => '',
         'delete' => '',
-        'trash'  => ''
+        'trash'  => \Sajadsdi\LaravelFileManagement\Jobs\Trash\TrashJob::class,
+        'restore_trash'  => \Sajadsdi\LaravelFileManagement\Jobs\Trash\RestoreTrashJob::class,
     ],
     'security'                    => [
         'secure_types' => ['program'],
         'secure_ext'   => 'secure',
     ],
     'trash'                       => [
-        'path' => "trash",
-        'disk' => "local"
+        'start_path' => "trash",
+        'disk' => "public",
+        'process_to_queue' => false,
+        'queue' => 'file-process-trash'
     ],
     'temp_path'                   => "temp",
     'require_check_ext_for_mimes' => ['application/octet-stream'],
