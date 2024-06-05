@@ -9,7 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Sajadsdi\LaravelFileManagement\Concerns\StorageToolsTrait;
 use Sajadsdi\LaravelFileManagement\Events\Upload\AfterUpload;
 use Sajadsdi\LaravelFileManagement\Events\Upload\BeforeUpload;
-use Sajadsdi\LaravelFileManagement\Jobs\VerifyFile;
+use Sajadsdi\LaravelFileManagement\Jobs\Update\VerifyFile;
 
 class UploadJob implements ShouldQueue
 {

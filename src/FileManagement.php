@@ -7,9 +7,11 @@ use Sajadsdi\LaravelFileManagement\Concerns\JobToolsTrait;
 use Sajadsdi\LaravelFileManagement\Concerns\StorageToolsTrait;
 use Sajadsdi\LaravelFileManagement\Concerns\UploadToolsTrait;
 use Sajadsdi\LaravelFileManagement\Contracts\FileRepositoryInterface;
+use Sajadsdi\LaravelFileManagement\Exceptions\FileIsInProgressException;
 use Sajadsdi\LaravelFileManagement\Exceptions\FileIsNotFoundException;
 use Sajadsdi\LaravelFileManagement\Exceptions\FileIsNotTrashedException;
 use Sajadsdi\LaravelFileManagement\Exceptions\FileIsTrashedException;
+use Sajadsdi\LaravelFileManagement\Jobs\Update\InProgressFile;
 
 class FileManagement
 {
@@ -86,9 +88,15 @@ class FileManagement
             throw new FileIsNotFoundException($fileId);
         }
 
+        if($file->status == 1){
+            throw new FileIsInProgressException($fileId);
+        }
+
         if ($file->trashed_at) {
             throw new FileIsTrashedException($fileId);
         }
+
+        InProgressFile::dispatchSync($file->id, $this->config['trash']['queue']);
 
         $this->dispatchJob('trash', $this->config['trash'], $file->makeVisible(["path", "disk"])->toArray());
     }
@@ -107,6 +115,10 @@ class FileManagement
             throw new FileIsNotFoundException($fileId);
         }
 
+        if($file->status == 1){
+            throw new FileIsInProgressException($fileId);
+        }
+
         if (!$file->trashed_at) {
             throw new FileIsNotTrashedException($fileId);
         }
@@ -114,6 +126,62 @@ class FileManagement
         $config = $this->config['types'][$file->type];
         $config['trash_start_path'] = $this->config['trash']['start_path'];
 
+        InProgressFile::dispatchSync($file->id, $config['queue']);
+
         $this->dispatchJob('restore_trash', $config, $file->makeVisible(["path", "disk"])->toArray());
+    }
+
+
+    public function delete(string|int $fileId): void
+    {
+        $file = $this->fileRepository->getById($fileId);
+
+        if (!$file) {
+            throw new FileIsNotFoundException($fileId);
+        }
+
+        if($file->status == 1){
+            throw new FileIsInProgressException($fileId);
+        }
+
+        if (!$file->trashed_at) {
+            throw new FileIsNotTrashedException($fileId);
+        }
+
+        $config = $this->config['types'][$file->type];
+
+        InProgressFile::dispatchSync($file->id, $config['queue']);
+
+        $this->dispatchJob('delete', $config, $file->makeVisible(["path", "disk"])->toArray());
+    }
+
+    public function update(string|int $fileId, array $updates): void
+    {
+        $file = $this->fileRepository->getById($fileId);
+
+        if (!$file) {
+            throw new FileIsNotFoundException($fileId);
+        }
+
+        if($file->status == 1){
+            throw new FileIsInProgressException($fileId);
+        }
+
+        $config = $this->config['types'][$file->type];
+
+        InProgressFile::dispatchSync($file->id, $config['queue']);
+
+        $this->dispatchJob('update', $config, $file->makeVisible(["path", "disk"])->toArray(), $updates);
+    }
+
+    public function single(string|int $fileId): array
+    {
+        $file = $this->fileRepository->getById($fileId);
+
+        if (!$file) {
+            throw new FileIsNotFoundException($fileId);
+        }
+
+        return $file->makeVisible(["path", "disk"])->toArray();
     }
 }

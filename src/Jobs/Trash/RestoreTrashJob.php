@@ -7,16 +7,15 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Sajadsdi\LaravelFileManagement\Concerns\StorageToolsTrait;
 use Sajadsdi\LaravelFileManagement\Contracts\FileRepositoryInterface;
 use Sajadsdi\LaravelFileManagement\Events\Trash\AfterRestoreTrash;
 use Sajadsdi\LaravelFileManagement\Events\Trash\BeforeRestoreTrash;
-use Sajadsdi\LaravelFileManagement\Jobs\InProgressFile;
-use Sajadsdi\LaravelFileManagement\Jobs\VerifyFile;
+use Sajadsdi\LaravelFileManagement\Jobs\MoveFileJob;
+use Sajadsdi\LaravelFileManagement\Jobs\Update\VerifyFile;
 
 class RestoreTrashJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, StorageToolsTrait;
+    use Dispatchable, InteractsWithQueue, Queueable;
 
 
     /**
@@ -32,22 +31,17 @@ class RestoreTrashJob implements ShouldQueue
      */
     public function handle(FileRepositoryInterface $fileRepository)
     {
-        if (!$this->file['trashed_at']) {
-            return;
-        }
-
-        InProgressFile::dispatchSync($this->file['id'], $this->config['queue']);
-
         BeforeRestoreTrash::dispatch($this->config, $this->file);
 
-        //copy and delete file
-        $this->putFile($this->config['disk'], str_replace($this->config['trash_start_path'] . '/','',$this->file['path']), $this->getFile($this->file['disk'], $this->file['path']));
-        $this->deleteFile($this->file['disk'], $this->file['path']);
+        $newPath = str_replace($this->config['trash_start_path'] . '/', '', $this->file['path']);
+
+        //Move file
+        MoveFileJob::dispatchSync($this->config, $this->file['disk'], $this->file['path'], $this->config['disk'], $newPath);
 
         //update new path and disk
         $updatedFile = $fileRepository->update($this->file['id'], [
             'disk' => $this->config['disk'],
-            'path' => str_replace($this->config['trash_start_path'] . '/','',$this->file['path']),
+            'path' => $newPath,
             'trashed_at' => null
         ]);
 

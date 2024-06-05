@@ -1,6 +1,6 @@
 <?php
 
-namespace Sajadsdi\LaravelFileManagement\Jobs;
+namespace Sajadsdi\LaravelFileManagement\Jobs\Update;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
