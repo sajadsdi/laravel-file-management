@@ -16,7 +16,7 @@ class File extends Model
     protected $hidden   = ["path", "disk", "updated_at", "deleted_at"];
     protected $appends  = ["url"];
     protected $casts    = [
-        'details' => 'object'
+        'details' => 'array'
     ];
 
     const STATUS_INPROGRESS = 1;

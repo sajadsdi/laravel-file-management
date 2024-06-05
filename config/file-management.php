@@ -124,8 +124,8 @@ return [
     ],
     'jobs'                        => [
         'upload' => \Sajadsdi\LaravelFileManagement\Jobs\Upload\UploadJob::class,
-        'update' => '',
-        'delete' => '',
+        'update' => \Sajadsdi\LaravelFileManagement\Jobs\Update\UpdateFileJob::class,
+        'delete' => \Sajadsdi\LaravelFileManagement\Jobs\Delete\DeleteJob::class,
         'trash'  => \Sajadsdi\LaravelFileManagement\Jobs\Trash\TrashJob::class,
         'restore_trash'  => \Sajadsdi\LaravelFileManagement\Jobs\Trash\RestoreTrashJob::class,
     ],

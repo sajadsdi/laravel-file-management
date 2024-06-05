@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Sajadsdi\LaravelFileManagement\Contracts\FileRepositoryInterface;
 use Sajadsdi\LaravelFileManagement\FileManagement;
+use Sajadsdi\LaravelFileManagement\Http\Requests\GetIDRequest;
+use Sajadsdi\LaravelFileManagement\Http\Requests\UpdateRequest;
 
 class FileController extends Controller
 {
@@ -17,25 +19,29 @@ class FileController extends Controller
         return response(['data' => $repository->index($request?->search, $request?->filter, $request?->sort, 20), 'message' => 'Success!'], 200);
     }
 
-    public function single($id)
+    public function single($id, FileManagement $fileManagement)
     {
+        $error = "";
 
-    }
+        try {
+            $single = $fileManagement->single($id);
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+        }
 
-    /**
-     * Update the specified resource.
-     */
-    public function update(string $id, Request $request)
-    {
+        if ($error) {
+            return response(['data' => [], 'message' => $error], 400);
+        }
 
+        return response(['data' => $single, 'message' => 'Success!'], 200);
     }
 
     /**
      * Move the specified resource to trash.
      */
-    public function trash(Request $request ,FileManagement $fileManagement)
+    public function trash(GetIDRequest $request, FileManagement $fileManagement)
     {
-        $error  = "";
+        $error = "";
 
         try {
             $fileManagement->trash($request->id);
@@ -53,9 +59,9 @@ class FileController extends Controller
     /**
      * Move the specified resource from trash to old path.
      */
-    public function restoreTrash(Request $request ,FileManagement $fileManagement)
+    public function restoreTrash(GetIDRequest $request, FileManagement $fileManagement)
     {
-        $error  = "";
+        $error = "";
 
         try {
             $fileManagement->restoreTrash($request->id);
@@ -71,11 +77,44 @@ class FileController extends Controller
     }
 
     /**
-     * Remove the specified resource.
+     * Delete file.
      */
-    public function delete(string $id)
+    public function delete(GetIDRequest $request, FileManagement $fileManagement)
     {
+        $error = "";
 
+        try {
+            $fileManagement->delete($request->id);
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+        }
+
+        if ($error) {
+            return response(['data' => [], 'message' => $error], 400);
+        }
+
+        return response('', 204);
+    }
+
+
+    /**
+     * Update file.
+     */
+    public function update(UpdateRequest $request, FileManagement $fileManagement)
+    {
+        $error = "";
+
+        try {
+            $fileManagement->update($request->id, $request->updates);
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+        }
+
+        if ($error) {
+            return response(['data' => [], 'message' => $error], 400);
+        }
+
+        return response(['data' => [], 'message' => 'Update file(s) in progress!'], 200);
     }
 
 }
